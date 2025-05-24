@@ -11,6 +11,7 @@ import {
   Modal,
   Fade,
   IconButton,
+  Snackbar,
 } from '@mui/material';
 import {
   Telegram as TelegramIcon,
@@ -23,6 +24,7 @@ import { playSound } from '../services/sound';
 import { vibrate } from '../services/vibration';
 import TelegramLogin from '../components/TelegramLogin';
 import { checkSubscriptionStatus, purchaseSubscription } from '../services/subscription';
+import MuiAlert from '@mui/material/Alert';
 
 const Account = () => {
   const theme = useTheme();
@@ -31,6 +33,7 @@ const Account = () => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     try {
@@ -110,15 +113,17 @@ const Account = () => {
         setSubscription(result.subscription);
         playSound('success');
         vibrate('success');
+        setSnackbar({ open: true, message: 'Покупка успешна! Подписка активирована.', severity: 'success' });
       } else {
         playSound('error');
         vibrate('error');
-        // TODO: Показать уведомление об ошибке
+        setSnackbar({ open: true, message: result.error || 'Ошибка при покупке подписки', severity: 'error' });
       }
     } catch (error) {
       console.error('Ошибка при покупке:', error);
       playSound('error');
       vibrate('error');
+      setSnackbar({ open: true, message: 'Ошибка при покупке подписки', severity: 'error' });
     } finally {
       setIsPurchasing(false);
     }
@@ -153,23 +158,18 @@ const Account = () => {
   }
 
   return (
-    <Box sx={{ 
-      height: '100vh', 
-      width: '100%', 
-      overflow: 'hidden',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: theme.palette.background.default
+    <Box sx={{
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: theme.palette.background.default,
+      overflowY: 'auto',
     }}>
-      <Container maxWidth="sm" sx={{ 
-        height: '100%', 
-        display: 'flex', 
+      <Container maxWidth="sm" sx={{
+        minHeight: '100vh',
+        display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
-        position: 'relative'
+        position: 'relative',
+        py: 4,
       }}>
         <Paper
           elevation={0}
@@ -178,8 +178,8 @@ const Account = () => {
             borderRadius: 3,
             background: theme.palette.background.paper,
             border: '1px solid',
-            borderColor: theme.palette.mode === 'dark' 
-              ? 'rgba(255, 255, 255, 0.1)' 
+            borderColor: theme.palette.mode === 'dark'
+              ? 'rgba(255, 255, 255, 0.1)'
               : 'rgba(0, 0, 0, 0.05)',
             width: '90%',
             maxWidth: '100%',
@@ -378,8 +378,8 @@ const Account = () => {
           sx={{
             p: 3,
             borderRadius: 3,
-            background: theme.palette.mode === 'dark' 
-              ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' 
+            background: theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
               : 'linear-gradient(135deg, #fffefb 0%, #fffde4 100%)',
             border: `1px solid ${theme.palette.divider}`,
             mt: 3,
@@ -393,23 +393,23 @@ const Account = () => {
             mx: 'auto',
           }}
         >
-          <Typography 
-            variant="h6" 
-            sx={{ 
+          <Typography
+            variant="h6"
+            sx={{
               mb: 2,
               color: theme.palette.primary.main,
-              fontWeight: 'bold'
+              fontWeight: 'bold',
             }}
           >
             Премиум подписка
           </Typography>
 
-          <Box sx={{ 
-            display: 'flex', 
+          <Box sx={{
+            display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
             gap: 2,
             width: '100%',
-            justifyContent: 'center'
+            justifyContent: 'center',
           }}>
             {/* Месячная подписка */}
             <Box
@@ -427,7 +427,7 @@ const Account = () => {
                 '&:hover': {
                   transform: 'translateY(-5px)',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                }
+                },
               }}
             >
               <Box sx={{ flex: 1 }}>
@@ -439,9 +439,9 @@ const Account = () => {
               <Button
                 variant="contained"
                 fullWidth
-                disabled={isPurchasing}
+                disabled={isPurchasing || !user}
                 sx={{ mt: 'auto' }}
-                onClick={() => handlePurchase('MONTHLY')}
+                onClick={() => user && handlePurchase('MONTHLY')}
               >
                 {isPurchasing ? 'Обработка...' : 'Купить'}
               </Button>
@@ -463,7 +463,7 @@ const Account = () => {
                 '&:hover': {
                   transform: 'translateY(-5px)',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                }
+                },
               }}
             >
               <Box sx={{ flex: 1 }}>
@@ -478,9 +478,9 @@ const Account = () => {
               <Button
                 variant="contained"
                 fullWidth
-                disabled={isPurchasing}
+                disabled={isPurchasing || !user}
                 sx={{ mt: 'auto' }}
-                onClick={() => handlePurchase('QUARTERLY')}
+                onClick={() => user && handlePurchase('QUARTERLY')}
               >
                 {isPurchasing ? 'Обработка...' : 'Купить'}
               </Button>
@@ -502,7 +502,7 @@ const Account = () => {
                 '&:hover': {
                   transform: 'translateY(-5px)',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                }
+                },
               }}
             >
               <Box sx={{ flex: 1 }}>
@@ -517,15 +517,31 @@ const Account = () => {
               <Button
                 variant="contained"
                 fullWidth
-                disabled={isPurchasing}
+                disabled={isPurchasing || !user}
                 sx={{ mt: 'auto' }}
-                onClick={() => handlePurchase('YEARLY')}
+                onClick={() => user && handlePurchase('YEARLY')}
               >
                 {isPurchasing ? 'Обработка...' : 'Купить'}
               </Button>
             </Box>
           </Box>
         </Box>
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <MuiAlert
+            elevation={6}
+            variant="filled"
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </MuiAlert>
+        </Snackbar>
       </Container>
     </Box>
   );
