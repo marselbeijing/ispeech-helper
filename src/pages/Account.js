@@ -22,12 +22,15 @@ import { verifyTelegramAuth, getCurrentUser, logout } from '../services/telegram
 import { playSound } from '../services/sound';
 import { vibrate } from '../services/vibration';
 import TelegramLogin from '../components/TelegramLogin';
+import { checkSubscriptionStatus, purchaseSubscription } from '../services/subscription';
 
 const Account = () => {
   const theme = useTheme();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   useEffect(() => {
     try {
@@ -71,6 +74,16 @@ const Account = () => {
           delete window.onTelegramAuth;
         };
       }
+
+      // Проверяем статус подписки
+      const checkSubscription = async () => {
+        const status = await checkSubscriptionStatus();
+        setSubscription(status);
+      };
+      
+      if (user) {
+        checkSubscription();
+      }
     } catch (error) {
       console.error('Ошибка инициализации:', error);
       setLoading(false);
@@ -85,6 +98,29 @@ const Account = () => {
       setUser(null);
     } catch (error) {
       console.error('Ошибка выхода:', error);
+    }
+  };
+
+  const handlePurchase = async (type) => {
+    try {
+      setIsPurchasing(true);
+      const result = await purchaseSubscription(type);
+      
+      if (result.success) {
+        setSubscription(result.subscription);
+        playSound('success');
+        vibrate('success');
+      } else {
+        playSound('error');
+        vibrate('error');
+        // TODO: Показать уведомление об ошибке
+      }
+    } catch (error) {
+      console.error('Ошибка при покупке:', error);
+      playSound('error');
+      vibrate('error');
+    } finally {
+      setIsPurchasing(false);
     }
   };
 
@@ -145,6 +181,10 @@ const Account = () => {
             borderColor: theme.palette.mode === 'dark' 
               ? 'rgba(255, 255, 255, 0.1)' 
               : 'rgba(0, 0, 0, 0.05)',
+            width: '90%',
+            maxWidth: '100%',
+            minWidth: '280px',
+            mx: 'auto',
           }}
         >
           {user ? (
@@ -166,6 +206,22 @@ const Account = () => {
               <Typography variant="body2" color="text.secondary" mb={2}>
                 @{user.username}
               </Typography>
+              
+              {/* Статус подписки */}
+              {subscription && (
+                <Box sx={{ mb: 2, textAlign: 'center' }}>
+                  <Typography 
+                    variant="subtitle2" 
+                    color={subscription.isActive ? 'success.main' : 'text.secondary'}
+                    sx={{ mb: 0.5 }}
+                  >
+                    {subscription.isActive 
+                      ? `Премиум подписка активна до ${new Date(subscription.expiresAt).toLocaleDateString()}`
+                      : 'У вас нет активной подписки'}
+                  </Typography>
+                </Box>
+              )}
+
               <Box sx={{ mt: 2, mb: 3 }}>
                 <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
                   Статистика
@@ -316,6 +372,160 @@ const Account = () => {
             </Paper>
           </Fade>
         </Modal>
+
+        {/* Блок подписок */}
+        <Box
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            background: theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' 
+              : 'linear-gradient(135deg, #fffefb 0%, #fffde4 100%)',
+            border: `1px solid ${theme.palette.divider}`,
+            mt: 3,
+            width: '90%',
+            maxWidth: '100%',
+            minWidth: '280px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            mx: 'auto',
+          }}
+        >
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              mb: 2,
+              color: theme.palette.primary.main,
+              fontWeight: 'bold'
+            }}
+          >
+            Премиум подписка
+          </Typography>
+
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2,
+            width: '100%',
+            justifyContent: 'center'
+          }}>
+            {/* Месячная подписка */}
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: theme.palette.divider,
+                width: { xs: '100%', sm: '30%' },
+                textAlign: 'center',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                }
+              }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>Месяц</Typography>
+                <Typography variant="h4" sx={{ mb: 1, color: theme.palette.primary.main }}>
+                  300 ⭐
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                fullWidth
+                disabled={isPurchasing}
+                sx={{ mt: 'auto' }}
+                onClick={() => handlePurchase('MONTHLY')}
+              >
+                {isPurchasing ? 'Обработка...' : 'Купить'}
+              </Button>
+            </Box>
+
+            {/* Квартальная подписка */}
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: theme.palette.divider,
+                width: { xs: '100%', sm: '30%' },
+                textAlign: 'center',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                }
+              }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>Квартал</Typography>
+                <Typography variant="h4" sx={{ mb: 1, color: theme.palette.primary.main }}>
+                  720 ⭐
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'success.main', mb: 1 }}>
+                  Скидка 20%
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                fullWidth
+                disabled={isPurchasing}
+                sx={{ mt: 'auto' }}
+                onClick={() => handlePurchase('QUARTERLY')}
+              >
+                {isPurchasing ? 'Обработка...' : 'Купить'}
+              </Button>
+            </Box>
+
+            {/* Годовая подписка */}
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: theme.palette.divider,
+                width: { xs: '100%', sm: '30%' },
+                textAlign: 'center',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                }
+              }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>Год</Typography>
+                <Typography variant="h4" sx={{ mb: 1, color: theme.palette.primary.main }}>
+                  2160 ⭐
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'success.main', mb: 1 }}>
+                  Скидка 40%
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                fullWidth
+                disabled={isPurchasing}
+                sx={{ mt: 'auto' }}
+                onClick={() => handlePurchase('YEARLY')}
+              >
+                {isPurchasing ? 'Обработка...' : 'Купить'}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
       </Container>
     </Box>
   );
