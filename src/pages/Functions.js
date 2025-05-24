@@ -10,6 +10,7 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   useTheme,
+  ListItemIcon,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
@@ -117,7 +118,7 @@ const Functions = () => {
       color: '#4caf50',
     },
     {
-      title: 'Использовать английский язык',
+      title: 'Сменить язык',
       description: '',
       icon: <LanguageIcon sx={{ fontSize: 25 }} />,
       value: settings.language === 'en',
