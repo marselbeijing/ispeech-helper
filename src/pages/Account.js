@@ -206,33 +206,31 @@ const Account = () => {
               >
                 Выйти
               </Button>
-              <Button
-                variant="outlined"
-                onClick={() => setIsInfoOpen(true)}
-                sx={{
-                  borderRadius: 30,
-                  px: 4,
-                  py: 1.2,
-                  fontWeight: 500,
-                  fontSize: '1rem',
-                  mt: 2,
-                  ml: 2,
-                  borderColor: theme.palette.primary.main,
-                  color: theme.palette.primary.main,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.dark,
-                    backgroundColor: 'rgba(33, 150, 243, 0.04)',
-                  },
-                }}
-              >
-                О приложении
-              </Button>
             </>
           ) : (
-            <>
-              <TelegramLogin onInfoClick={() => setIsInfoOpen(true)} />
-            </>
+            <TelegramLogin />
           )}
+          <Button
+            variant="outlined"
+            onClick={() => setIsInfoOpen(true)}
+            sx={{
+              borderRadius: 30,
+              px: 4,
+              py: 1.2,
+              fontWeight: 500,
+              fontSize: '1rem',
+              mt: 3,
+              width: '100%',
+              borderColor: theme.palette.primary.main,
+              color: theme.palette.primary.main,
+              '&:hover': {
+                borderColor: theme.palette.primary.dark,
+                backgroundColor: 'rgba(33, 150, 243, 0.04)',
+              },
+            }}
+          >
+            О приложении
+          </Button>
         </Paper>
 
         <Modal
@@ -269,10 +267,41 @@ const Account = () => {
                 <CloseIcon />
               </IconButton>
               <Typography variant="h6" gutterBottom>
-                О входе через Telegram
+                О приложении
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Для использования приложения необходимо войти через Telegram. Это обеспечивает безопасность и удобство использования.
+              <Typography variant="body2" color="text.secondary" paragraph>
+                iSpeech Helper — это специализированное приложение для помощи людям с речевыми расстройствами. Оно разработано для улучшения дикции, артикуляции и общего качества речи через комплекс специальных упражнений.
+              </Typography>
+              <Typography variant="subtitle2" gutterBottom sx={{ mt: 2, color: 'primary.main' }}>
+                Основные функции:
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                1. Дыхательные упражнения — помогают контролировать дыхание во время речи. Регулярные занятия улучшают выносливость и стабильность голоса.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                2. Тренажер эмоций — учит выражать различные эмоции через голос. Упражнения включают чтение текста с разной интонацией и эмоциональной окраской.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                3. Плавное чтение — помогает развить беглость речи. Текст появляется постепенно, что способствует более размеренному и четкому произношению.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                4. Метроном — тренирует ритмичность речи. Помогает поддерживать постоянный темп и паузы между словами.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                5. Скороговорки — улучшают артикуляцию и четкость произношения сложных звуковых сочетаний.
+              </Typography>
+              <Typography variant="subtitle2" gutterBottom sx={{ mt: 2, color: 'primary.main' }}>
+                Как пользоваться:
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                • Начните с дыхательных упражнений для разминки
+                • Выберите любой раздел и следуйте инструкциям на экране
+                • Регулярно занимайтесь, начиная с 5-10 минут в день
+                • Отслеживайте прогресс в разделе статистики
+                • Используйте настройки для персонализации опыта
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
+                Для достижения наилучших результатов рекомендуется заниматься ежедневно и постепенно увеличивать продолжительность занятий.
               </Typography>
             </Paper>
           </Fade>
