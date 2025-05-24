@@ -81,7 +81,7 @@ const Functions = () => {
   const menuItems = [
     {
       title: 'Темная тема',
-      description: 'Включить темный режим интерфейса',
+      description: '',
       icon: <DarkModeIcon sx={{ fontSize: 25 }} />,
       value: settings.darkMode,
       onChange: (value) => {
@@ -103,7 +103,7 @@ const Functions = () => {
     },
     {
       title: 'Звуковые эффекты',
-      description: 'Включить при взаимодействии',
+      description: '',
       icon: <VolumeIcon sx={{ fontSize: 25 }} />,
       value: settings.soundEffects,
       onChange: (value) => {
@@ -118,7 +118,7 @@ const Functions = () => {
     },
     {
       title: 'Использовать английский язык',
-      description: 'Переключить интерфейс на английский язык',
+      description: '',
       icon: <LanguageIcon sx={{ fontSize: 25 }} />,
       value: settings.language === 'en',
       onChange: (value) => {
@@ -133,7 +133,7 @@ const Functions = () => {
     },
     {
       title: 'Техподдержка',
-      description: 'Связаться с администратором',
+      description: '',
       icon: <SupportIcon sx={{ fontSize: 25 }} />,
       onClick: () => {
         const username = 'MilanPlayBall';
