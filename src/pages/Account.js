@@ -206,6 +206,27 @@ const Account = () => {
               >
                 Выйти
               </Button>
+              <Button
+                variant="outlined"
+                onClick={() => setIsInfoOpen(true)}
+                sx={{
+                  borderRadius: 30,
+                  px: 4,
+                  py: 1.2,
+                  fontWeight: 500,
+                  fontSize: '1rem',
+                  mt: 2,
+                  ml: 2,
+                  borderColor: theme.palette.primary.main,
+                  color: theme.palette.primary.main,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.dark,
+                    backgroundColor: 'rgba(33, 150, 243, 0.04)',
+                  },
+                }}
+              >
+                О приложении
+              </Button>
             </>
           ) : (
             <>
